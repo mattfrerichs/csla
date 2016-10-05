@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-#if NETFX_CORE && !NETCORE
+#if NETFX_CORE && !NETCORE && !PCL46
 using Windows.System.Threading;
 #endif
 
@@ -46,9 +46,10 @@ namespace Csla.Threading
     /// <summary>
     /// Informs the ThreadPool that there's work to be executed for this scheduler.
     /// </summary>
-#if NETFX_CORE && !NETCORE
+#if NETFX_CORE && !NETCORE && !NETSTANDARD
     private void NotifyThreadPoolOfPendingWork()
     {
+#if !PCL46 // rely on NuGet bait-and-switch for actual implementation
       var asyncAction = ThreadPool.RunAsync(_ =>
       {
         // Note that the current thread is now processing work items.
@@ -85,8 +86,11 @@ namespace Csla.Threading
           _currentThreadIsProcessingItems = false;
         }
       }, WorkItemPriority.Normal, WorkItemOptions.None);
+#else
+        _currentThreadIsProcessingItems = true;
+#endif
     }
-#elif (ANDROID || IOS || NETCORE) 
+#elif (ANDROID || IOS || NETCORE)
     private void NotifyThreadPoolOfPendingWork()
     {
       ThreadPool.QueueUserWorkItem(_ =>

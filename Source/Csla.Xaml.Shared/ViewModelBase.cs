@@ -19,9 +19,9 @@ using Csla.Security;
 using Csla.Core;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Linq.Expressions;
 #if NETFX_CORE
 using Windows.UI.Xaml;
-using System.Linq.Expressions;
 #endif
 
 #if ANDROID
@@ -37,7 +37,7 @@ namespace Csla.Xaml
   /// implement their own commands/verbs/actions.
   /// </summary>
   /// <typeparam name="T">Type of the Model object.</typeparam>
-#if ANDROID || IOS
+#if ANDROID || IOS || XAMARIN
     public abstract class ViewModelBase<T> : INotifyPropertyChanged, IViewModel
 #else
   public abstract class ViewModelBase<T> : DependencyObject,
@@ -100,22 +100,45 @@ namespace Csla.Xaml
 
     #region Properties
 
-      /// <summary>
-      /// Gets or sets the Model object.
-      /// </summary>
-#if ANDROID || IOS
-    public object ModelProperty;
+#if ANDROID || IOS || XAMARIN
+    /// <summary>
+    /// Placeholder for PCL and other platforms where this
+    /// value is unused.
+    /// </summary>
+    public static object ModelProperty;
+
+    private T _model;
+    /// <summary>
+    /// Gets or sets the Model object.
+    /// </summary>
+    public T Model
+    {
+      get { return _model; }
+      set
+      {
+        var oldValue = _model;
+        _model = value;
+        if (this.ManageObjectLifetime)
+        {
+          var undo = value as ISupportUndo;
+          if (undo != null)
+            undo.BeginEdit();
+        }
+        OnPropertyChanged("Model");
+        this.OnModelChanged((T)oldValue, _model);
+      }
+    }
 #else
+    /// <summary>
+    /// Gets or sets the Model object.
+    /// </summary>
     public static readonly DependencyProperty ModelProperty =
         DependencyProperty.Register("Model", typeof(T), typeof(ViewModelBase<T>),
-#endif
 #if NETFX_CORE
         new PropertyMetadata(default(T), (o, e) =>
-#elif ANDROID || IOS
 #else
         new PropertyMetadata((o, e) =>
 #endif
-#if !ANDROID && !IOS
         {
           var viewmodel = (ViewModelBase<T>)o;
           if (viewmodel.ManageObjectLifetime)
@@ -125,44 +148,27 @@ namespace Csla.Xaml
               undo.BeginEdit();
           }
           viewmodel.OnModelChanged((T)e.OldValue, (T)e.NewValue);
-#endif
 #if NETFX_CORE
           viewmodel.OnPropertyChanged("Model");
 #endif
-#if !ANDROID && !IOS
   }));
-#endif
+
     /// <summary>
     /// Gets or sets the Model object.
     /// </summary>
     public T Model
     {
-#if ANDROID || IOS
-      get { return (T)ModelProperty; }
-      set
-      {
-        var oldValue = ModelProperty;
-        ModelProperty = value;
-        if (this.ManageObjectLifetime)
-        {
-            var undo = value as ISupportUndo;
-            if (undo != null)
-                undo.BeginEdit();
-        }
-        this.OnModelChanged((T)oldValue, (T)ModelProperty);
-      }
-#else
       get { return (T)GetValue(ModelProperty); }
       set { SetValue(ModelProperty, value); }
-#endif
     }
+#endif
 
     /// <summary>
     /// Gets or sets a value indicating whether the
     /// ViewModel should automatically managed the
     /// lifetime of the Model.
     /// </summary>
-#if ANDROID || IOS
+#if ANDROID || IOS || XAMARIN
     public bool ManageObjectLifetimeProperty;
 #else
     public static readonly DependencyProperty ManageObjectLifetimeProperty =
@@ -178,7 +184,7 @@ namespace Csla.Xaml
     [Display(AutoGenerateField = false)]
     public bool ManageObjectLifetime
     {
-#if ANDROID || IOS
+#if ANDROID || IOS || XAMARIN
       get { return (bool)ManageObjectLifetimeProperty; }
       set { ManageObjectLifetimeProperty = value; }
 #else
@@ -247,9 +253,9 @@ namespace Csla.Xaml
       }
     }
 
-    #endregion
+#endregion
 
-    #region Can___ properties
+#region Can___ properties
 
     private bool _isDirty;
 
@@ -452,7 +458,7 @@ namespace Csla.Xaml
     }
 
     private void SetProperties()
-    {
+    { 
       ITrackStatus targetObject = Model as ITrackStatus;
       ICollection list = Model as ICollection;
       INotifyBusy busyObject = Model as INotifyBusy;
@@ -530,9 +536,9 @@ namespace Csla.Xaml
       }
     }
 
-    #endregion
+#endregion
 
-    #region Can methods that only account for user rights
+#region Can methods that only account for user rights
 
     private bool _canCreateObject;
 
@@ -629,9 +635,9 @@ namespace Csla.Xaml
       OnSetProperties();
     }
 
-    #endregion
+#endregion
 
-    #region Verbs
+#region Verbs
 
 #if !(ANDROID || IOS)
     /// <summary>
@@ -760,7 +766,7 @@ namespace Csla.Xaml
       var innerType = typeof(DataPortalResult<>).MakeGenericType(objectType);
       var args = typeof(EventHandler<>).MakeGenericType(innerType);
 
-#if NETFX_CORE
+#if NETFX_CORE || XAMARIN
       var target = Expression.Constant(this);
       var p1 = new ParameterExpression[] { Expression.Parameter(typeof(object), "sender"), Expression.Parameter(typeof(EventArgs), "args") };
       var call = Expression.Call(target, method, p1);
@@ -811,7 +817,7 @@ namespace Csla.Xaml
     protected virtual void OnRefreshed()
     { }
 
-#if !(ANDROID || IOS) && !NETFX_CORE
+#if !(ANDROID || IOS) && !NETFX_CORE && !PCL36 && !XAMARIN
     /// <summary>
     /// Saves the Model, first committing changes
     /// if ManagedObjectLifetime is true.
@@ -980,7 +986,7 @@ namespace Csla.Xaml
       }
     }
 
-#if (ANDROID || IOS) || NETFX_CORE
+#if (ANDROID || IOS) || NETFX_CORE || XAMARIN
     /// <summary>
     /// Adds a new item to the Model (if it
     /// is a collection).
@@ -1049,9 +1055,9 @@ namespace Csla.Xaml
       ((Csla.Core.IEditableBusinessObject)Model).Delete();
     }
 
-    #endregion
+#endregion
 
-    #region INotifyPropertyChanged Members
+#region INotifyPropertyChanged Members
 
     /// <summary>
     /// Event raised when a property changes.
@@ -1068,9 +1074,9 @@ namespace Csla.Xaml
         PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
     }
 
-    #endregion
+#endregion
 
-    #region Model Changes Handling
+#region Model Changes Handling
 
     /// <summary>
     /// Invoked when the Model changes, allowing
@@ -1170,9 +1176,9 @@ namespace Csla.Xaml
       OnSetProperties();
     }
 
-    #endregion
+#endregion
 
-    #region IViewModel Members
+#region IViewModel Members
 
     object IViewModel.Model
     {
@@ -1180,6 +1186,6 @@ namespace Csla.Xaml
       set { Model = (T)value; }
     }
 
-    #endregion
+#endregion
   }
 }

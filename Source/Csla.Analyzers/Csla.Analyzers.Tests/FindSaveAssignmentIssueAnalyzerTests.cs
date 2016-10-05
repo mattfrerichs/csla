@@ -1,8 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,24 +16,24 @@ namespace Csla.Analyzers.Tests
       var diagnostics = analyzer.SupportedDiagnostics;
       Assert.AreEqual(2, diagnostics.Length);
 
-      var saveDiagnostic = diagnostics.Single(_ => _.Id == FindSaveAssignmentIssueAnalyzerConstants.DiagnosticId);
-      Assert.AreEqual(saveDiagnostic.Title.ToString(), FindSaveAssignmentIssueAnalyzerConstants.Title,
+      var saveDiagnostic = diagnostics.Single(_ => _.Id == Constants.AnalyzerIdentifiers.FindSaveAssignmentIssue);
+      Assert.AreEqual(FindSaveAssignmentIssueAnalyzerConstants.Title, saveDiagnostic.Title.ToString(),
         nameof(DiagnosticDescriptor.Title));
-      Assert.AreEqual(saveDiagnostic.MessageFormat.ToString(), FindSaveAssignmentIssueAnalyzerConstants.Message,
+      Assert.AreEqual(FindSaveAssignmentIssueAnalyzerConstants.Message, saveDiagnostic.MessageFormat.ToString(),
         nameof(DiagnosticDescriptor.MessageFormat));
-      Assert.AreEqual(saveDiagnostic.Category, FindSaveAssignmentIssueAnalyzerConstants.Category,
+      Assert.AreEqual(Constants.Categories.Usage, saveDiagnostic.Category, 
         nameof(DiagnosticDescriptor.Category));
-      Assert.AreEqual(saveDiagnostic.DefaultSeverity, DiagnosticSeverity.Error,
+      Assert.AreEqual(DiagnosticSeverity.Error, saveDiagnostic.DefaultSeverity,
         nameof(DiagnosticDescriptor.DefaultSeverity));
 
-      var saveAsyncDiagnostic = diagnostics.Single(_ => _.Id == FindSaveAsyncAssignmentIssueAnalyzerConstants.DiagnosticId);
-      Assert.AreEqual(saveAsyncDiagnostic.Title.ToString(), FindSaveAsyncAssignmentIssueAnalyzerConstants.Title,
+      var saveAsyncDiagnostic = diagnostics.Single(_ => _.Id == Constants.AnalyzerIdentifiers.FindSaveAsyncAssignmentIssue);
+      Assert.AreEqual(FindSaveAsyncAssignmentIssueAnalyzerConstants.Title, saveAsyncDiagnostic.Title.ToString(),
         nameof(DiagnosticDescriptor.Title));
-      Assert.AreEqual(saveAsyncDiagnostic.MessageFormat.ToString(), FindSaveAsyncAssignmentIssueAnalyzerConstants.Message,
+      Assert.AreEqual(FindSaveAsyncAssignmentIssueAnalyzerConstants.Message, saveAsyncDiagnostic.MessageFormat.ToString(),
         nameof(DiagnosticDescriptor.MessageFormat));
-      Assert.AreEqual(saveAsyncDiagnostic.Category, FindSaveAsyncAssignmentIssueAnalyzerConstants.Category,
+      Assert.AreEqual(Constants.Categories.Usage, saveAsyncDiagnostic.Category,
         nameof(DiagnosticDescriptor.Category));
-      Assert.AreEqual(saveAsyncDiagnostic.DefaultSeverity, DiagnosticSeverity.Error,
+      Assert.AreEqual(DiagnosticSeverity.Error, saveAsyncDiagnostic.DefaultSeverity,
         nameof(DiagnosticDescriptor.DefaultSeverity));
     }
 
@@ -44,7 +42,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnAnObjectThatIsNotABusinessBase))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -52,7 +50,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnAnObjectThatIsNotABusinessBase))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -60,7 +58,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnAnObjectThatIsABusinessBaseAndResultIsAssigned))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -68,7 +66,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnAnObjectThatIsABusinessBaseAndResultIsAssigned))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -76,7 +74,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnAnObjectThatIsABusinessBaseAndResultIsNotAssigned))}.cs",
-        new[] { FindSaveAssignmentIssueAnalyzerConstants.DiagnosticId });
+        new[] { Constants.AnalyzerIdentifiers.FindSaveAssignmentIssue });
     }
 
     [TestMethod]
@@ -84,7 +82,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnAnObjectThatIsABusinessBaseAndResultIsNotAssigned))}.cs",
-        new[] { FindSaveAsyncAssignmentIssueAnalyzerConstants.DiagnosticId });
+        new[] { Constants.AnalyzerIdentifiers.FindSaveAsyncAssignmentIssue });
     }
 
     [TestMethod]
@@ -92,7 +90,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnAnObjectThatIsABusinessBaseAndResultIsReturned))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -100,7 +98,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnAnObjectThatIsABusinessBaseAndResultIsReturned))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -108,7 +106,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnAnObjectThatIsABusinessBaseAndResultIsReturnedInLambda))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -116,7 +114,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnAnObjectThatIsABusinessBaseAndResultIsReturnedInLambda))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -124,7 +122,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnAnObjectThatIsABusinessBaseAndResultIsReturnedInLambdaWithBlock))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -132,7 +130,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnAnObjectThatIsABusinessBaseAndResultIsReturnedInLambdaWithBlock))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -140,7 +138,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnABusinessObjectWithinItself))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -148,7 +146,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnABusinessObjectWithinItself))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -156,7 +154,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnABusinessObjectAsThis))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -164,7 +162,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnABusinessObjectAsThis))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -172,7 +170,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveIsCalledOnABusinessObjectAsBase))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
 
     [TestMethod]
@@ -180,7 +178,7 @@ namespace Csla.Analyzers.Tests
     {
       await TestHelpers.RunAnalysisAsync<FindSaveAssignmentIssueAnalyzer>(
         $@"Targets\{nameof(FindSaveAssignmentIssueAnalyzerTests)}\{(nameof(this.AnalyzeWhenSaveAsyncIsCalledOnABusinessObjectAsBase))}.cs",
-        new string[0]);
+        Array.Empty<string>());
     }
   }
 }

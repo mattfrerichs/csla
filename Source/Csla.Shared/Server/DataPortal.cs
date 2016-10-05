@@ -175,12 +175,12 @@ namespace Csla.Server
 
             break;
           default:
-            portal = new DataPortalSelector();
+            portal = new DataPortalBroker();
             result = await portal.Create(objectType, criteria, context, isSync).ConfigureAwait(false);
             break;
         }
 #else
-        portal = new DataPortalSelector();
+        portal = new DataPortalBroker();
         result = await portal.Create(objectType, criteria, context, isSync).ConfigureAwait(false);
 #endif
         Complete(new InterceptArgs { ObjectType = objectType, Parameter = criteria, Result = result, Operation = DataPortalOperations.Create, IsSync = isSync });
@@ -264,12 +264,12 @@ namespace Csla.Server
             result = await portal.Fetch(objectType, criteria, context, isSync).ConfigureAwait(false);
             break;
           default:
-            portal = new DataPortalSelector();
+            portal = new DataPortalBroker();
             result = await portal.Fetch(objectType, criteria, context, isSync).ConfigureAwait(false);
             break;
         }
 #else
-        portal = new DataPortalSelector();
+        portal = new DataPortalBroker();
         result = await portal.Fetch(objectType, criteria, context, isSync).ConfigureAwait(false);
 #endif
         Complete(new InterceptArgs { ObjectType = objectType, Parameter = criteria, Result = result, Operation = DataPortalOperations.Fetch, IsSync = isSync });
@@ -401,12 +401,12 @@ namespace Csla.Server
             result = await portal.Update(obj, context, isSync).ConfigureAwait(false);
             break;
           default:
-            portal = new DataPortalSelector();
+            portal = new DataPortalBroker();
             result = await portal.Update(obj, context, isSync).ConfigureAwait(false);
             break;
         }
 #else
-        portal = new DataPortalSelector();
+        portal = new DataPortalBroker();
         result = await portal.Update(obj, context, isSync).ConfigureAwait(false);
 #endif
         Complete(new InterceptArgs { ObjectType = objectType, Parameter = obj, Result = result, Operation = operation, IsSync = isSync });
@@ -500,12 +500,12 @@ namespace Csla.Server
             result = await portal.Delete(objectType, criteria, context, isSync).ConfigureAwait(false);
             break;
           default:
-            portal = new DataPortalSelector();
+            portal = new DataPortalBroker();
             result = await portal.Delete(objectType, criteria, context, isSync).ConfigureAwait(false);
             break;
         }
 #else
-        portal = new DataPortalSelector();
+        portal = new DataPortalBroker();
         result = await portal.Delete(objectType, criteria, context, isSync).ConfigureAwait(false);
 #endif
         Complete(new InterceptArgs { ObjectType = objectType, Parameter = criteria, Result = result, Operation = DataPortalOperations.Delete, IsSync = isSync });
@@ -612,6 +612,7 @@ namespace Csla.Server
       ApplicationContext.SetContext(context.ClientContext, context.GlobalContext);
 
       // set the thread's culture to match the client
+#if !PCL46 // rely on NuGet bait-and-switch for actual implementation
 #if NETCORE
       System.Globalization.CultureInfo.CurrentCulture =
         new System.Globalization.CultureInfo(context.ClientCulture); 
@@ -627,6 +628,7 @@ namespace Csla.Server
         new System.Globalization.CultureInfo(context.ClientCulture);
       System.Threading.Thread.CurrentThread.CurrentUICulture =
         new System.Globalization.CultureInfo(context.ClientUICulture);
+#endif
 #endif
 
       if (ApplicationContext.AuthenticationType == "Windows")
@@ -670,9 +672,9 @@ namespace Csla.Server
         ApplicationContext.User = null;
     }
 
-    #endregion
+#endregion
 
-    #region Authorize
+#region Authorize
 
     private static object _syncRoot = new object();
     private static IAuthorizeDataPortal _authorizer = null;
@@ -712,7 +714,7 @@ namespace Csla.Server
       { /* default is to allow all requests */ }
     }
 
-    #endregion
+#endregion
 
     internal static DataPortalException NewDataPortalException(string message, Exception innerException, object businessObject)
     {

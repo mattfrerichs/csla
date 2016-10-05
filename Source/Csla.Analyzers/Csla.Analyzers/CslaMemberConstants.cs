@@ -2,7 +2,7 @@
 {
   public static class CslaMemberConstants
   {
-    public static class CslaPropertyMethods
+    public static class Properties
     {
       public const string GetProperty = "GetProperty";
       public const string GetPropertyConvert = "GetPropertyConvert";
@@ -20,7 +20,7 @@
       public const string SetPropertyConvert = "SetPropertyConvert";
     }
 
-    public static class CslaOperations
+    public static class Operations
     {
       public const string DataPortalCreate = "DataPortal_Create";
       public const string DataPortalFetch = "DataPortal_Fetch";
@@ -36,7 +36,7 @@
       public const string ChildDeleteSelf = "Child_DeleteSelf";
     }
 
-    public static class CslaTypeNames
+    public static class Types
     {
       public const string BusinessBase = "BusinessBase";
       public const string BusinessBindingListBase = "BusinessBindingListBase";
@@ -45,6 +45,7 @@
       public const string IBusinessObject = "IBusinessObject";
       public const string IMobileObject = "IMobileObject";
       public const string IPropertyInfo = "IPropertyInfo";
+      public const string ManagedObjectBase = "ManagedObjectBase";
     }
 
     public const string AssemblyName = "Csla";
